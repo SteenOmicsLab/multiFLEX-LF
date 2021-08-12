@@ -4,12 +4,11 @@ In high-throughput LC-MS/MS-based proteomics information about the presence and 
 
 ## Download and Installation of the GUI
 - Requirements: Windows 10 and 800MB of free disk space. 
-- multiFLEX-LF executables for Windows 10 systems available here: https://gitlab.com/SteenOmicsLab/multiflex-lf/-/releases#v1.0.0
-- No installation needed. Just move the zip file to your location of choice and extract it. To start the program, double-click multiFLEX_LF_GUI.exe. The program might take a while to start.
+- multiFLEX-LF GUI and CLI executables for Windows 10 systems are available here: https://gitlab.com/SteenOmicsLab/multiflex-lf/-/releases#v1.0.0
+- No installation needed. Just move the zip file to your location of choice and extract it. To start the program, double-click multiFLEX_LF_GUI.exe. Warning: The program might take a while to start.
 
 For a detailed description of the input file, the input parameters and the output files see: multiFLEX-LF_documentation.pdf
 
-A test data set is available here: https://gitlab.com/SteenOmicsLab/multiflex-lf/-/tree/main/scr/test_data
+For a description of the multiFLEX-LF CLI also see: multiFLEX-LF_documentation.pdf
 
-
-
+A test dataset is available here: https://gitlab.com/SteenOmicsLab/multiflex-lf/-/tree/main/scr/test_data
