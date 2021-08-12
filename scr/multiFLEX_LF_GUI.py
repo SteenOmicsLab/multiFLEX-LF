@@ -236,7 +236,6 @@ class Ui_MainWindow(object):
         ##### set grid position
         self.gridLayout.addWidget(self.pushButton_select_input, 2, 5, 1, 1)
         
-        
         ##### initiate label for output folder path input field
         self.label_output = QLabel(self.centralwidget)
         ##### set font 
@@ -250,7 +249,6 @@ class Ui_MainWindow(object):
         ##### set hover text of the label
         self.label_output.setToolTip('Select folder/directory for the output files.')
 
-        
         ##### initiate empty field to enter input file path
         self.lineEdit_output = QLineEdit(self.centralwidget)
         ##### set object name
@@ -270,7 +268,6 @@ class Ui_MainWindow(object):
         ##### set grid position
         self.gridLayout.addWidget(self.pushButton_select_output, 4, 5, 1, 1)
         
-        
         ##### initiate label for reference sample identifier input field
         self.label_reference = QLabel(self.centralwidget)
         ##### set font 
@@ -282,9 +279,8 @@ class Ui_MainWindow(object):
         ##### set grid position
         self.gridLayout.addWidget(self.label_reference, 5, 0, 1, 4)
         ##### set hover text of the label
-        self.label_reference.setToolTip('Based on this, multiFLEX-LF determines which sample(s) to use as reference sample(s). This needs to match exactly the value in the "Group" column for all samples that shall be taken as reference. If more than one sample is given (e.g. in case of a control group) multiFLEX-LF calculates the median intensity over all reference samples for each peptide.<br>')
+        self.label_reference.setToolTip('Based on this, multiFLEX-LF determines which sample(s) to use as reference sample(s). This needs to match exactly the value in the "Group" column for all samples that should be taken as reference. If more than one sample is given (e.g. in case of a control group) multiFLEX-LF calculates the median intensity over all reference samples for each peptide.<br>')
 
-        
         ##### initiate empty field to enter reference sample identifier
         self.lineEdit_reference = QLineEdit(self.centralwidget)
         ##### set object name
@@ -292,12 +288,10 @@ class Ui_MainWindow(object):
         ##### set grid position
         self.gridLayout.addWidget(self.lineEdit_reference, 6, 0, 1, 5)
 
-
         ##### add spacer item between input field and options
         spacerItem_middle = QSpacerItem(1, 50, QSizePolicy.Fixed, QSizePolicy.Expanding)
         ##### set grid position
         self.gridLayout.addItem(spacerItem_middle, 7, 0, 1, 1)
-        
         
         ##### initiate label for options section
         self.label_options = QLabel(self.centralwidget)
@@ -310,7 +304,6 @@ class Ui_MainWindow(object):
         ##### set grid position
         self.gridLayout.addWidget(self.label_options, 8, 0, 1, 1)
         
-
         ##### initiate label for number of ransac initiations spinbox
         self.label_ransac_init = QLabel(self.centralwidget)
         ##### set object name
@@ -320,7 +313,6 @@ class Ui_MainWindow(object):
         ##### set hover text of the label
         self.label_ransac_init.setToolTip('Number of times multiFLEX-LF/FLEXIQuant-LF fits a new RANSAC linear regression model to each sample to choose the best model. Between 5 and 100 initiations can be selected. <br>The more initiations, the higher the reproducibility and the probability that multiFLEX/FLEXIQuant-LF finds the optimal model. However, choosing a high number can significantly increases the runtime and more than 50 initiations rarely provide additional benefit.')
 
-        
         ##### initiate a spinbox to select number of ransac initiations
         self.spinBox_ransac_init = QSpinBox(self.centralwidget)
         ##### set font size
@@ -339,7 +331,6 @@ class Ui_MainWindow(object):
         self.spinBox_ransac_init.setObjectName("spinBox_ransac_init")
         ##### set grid position
         self.gridLayout.addWidget(self.spinBox_ransac_init, 12, 1, 1, 1)
-
 
         ##### initiate label for modification cutoff spinbox
         self.label_mod_cutoff = QLabel(self.centralwidget)
@@ -370,7 +361,6 @@ class Ui_MainWindow(object):
         ##### set grid position
         self.gridLayout.addWidget(self.doubleSpinBox_mod_cutoff, 13, 1, 1, 1)
 
-
         ##### set style sheet for check box
         StyleSheet_checkBox = '''
         QCheckBox::indicator {
@@ -388,7 +378,6 @@ class Ui_MainWindow(object):
         ##### set hover text of the label
         self.label_remove_outliers.setToolTip('If checked, peptides with an outlier raw score above a computed cutoff are removed before RM score calculation. <br> If not checked, the outlier raw score is only removed for the specific sample, raw scores of the peptide of all other samples are kept for RM score analysis.')
 
-        
         ##### initiate check box to select if outlier peptides should be removed or not
         self.checkBox_remove_outliers = QCheckBox(self.centralwidget)
         #####  use style sheet created above
@@ -407,8 +396,7 @@ class Ui_MainWindow(object):
         self.checkBox_remove_outliers.setObjectName("checkBox_remove_outliers")
         #####  set grid position
         self.gridLayout.addWidget(self.checkBox_remove_outliers, 14, 1, 1, 1, Qt.AlignRight)
-        
-        
+
         ##### initiate label for checkbox for plots generation
         self.label_create_plots = QLabel(self.centralwidget)
         ##### set object name
@@ -418,7 +406,6 @@ class Ui_MainWindow(object):
         ##### set hover text of the label
         self.label_create_plots.setToolTip('If checked, a linear regression plot for each sample and a scatter plot is created for each protein. <br> All regression and scatter plots will be saved respectively in a single pdf file (_mFQ-LF-output_regression_plots.pdf and _mFQ-LF_scatter_plots.pdf). <br> <b>Warning:</b> This option only works with 1 CPU core!')
 
-        
         ##### initiate check box to select if plots should be created or not
         self.checkBox_plots = QCheckBox(self.centralwidget)
         ##### use style sheet created above
@@ -438,7 +425,6 @@ class Ui_MainWindow(object):
         ##### set grid position
         self.gridLayout.addWidget(self.checkBox_plots, 15, 1, 1, 1, Qt.AlignRight)
 
-        
         ##### initiate label for checkbox for the heatmaps generation
         self.label_create_heatmaps = QLabel(self.centralwidget)
         ##### set object name
@@ -448,7 +434,6 @@ class Ui_MainWindow(object):
         ##### set hover text of the label
         self.label_create_heatmaps.setToolTip('If checked, a heatmap of the RM scores of the peptides over the samples is created for each protein. <br> All plots will be saved in a single pdf file (_mFQ-LF_heatmaps.pdf).')
 
-        
         ##### initiate check box to select if heatmaps should be created or not
         self.checkBox_heatmaps = QCheckBox(self.centralwidget)
         ##### use style sheet created above
@@ -468,7 +453,6 @@ class Ui_MainWindow(object):
         ##### set grid position
         self.gridLayout.addWidget(self.checkBox_heatmaps, 16, 1, 1, 1, Qt.AlignRight)
 
-        
         ##### initiate label for number of ransac initiations spinbox
         self.label_num_cpus = QLabel(self.centralwidget)
         ##### set object name
@@ -477,7 +461,6 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.label_num_cpus, 17, 0, 1, 1, Qt.AlignLeft)
         ##### set hover text of the label
         self.label_num_cpus.setToolTip('Number of CPUs/threads used for multiFLEX-LF computation. <br> Can be 2 times the number of available CPUs. <br> <b>Warning: This number should be lower than the maximum number of available CPUs, otherwise the computer might freeze!</b> ')
-
         
         ##### initiate a spinbox to select number of ransac initiations
         self.spinBox_num_cpus = QSpinBox(self.centralwidget)
@@ -497,7 +480,6 @@ class Ui_MainWindow(object):
         self.spinBox_num_cpus.setObjectName("spinBox_num_cpus")
         ##### set grid position
         self.gridLayout.addWidget(self.spinBox_num_cpus, 17, 1, 1, 1)
-        
         
         ##### initiate a horizontal spacer item between FLEXIQuant-LF options and clustering options
         spacerItem_horizontal = QSpacerItem(200, 1, QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -524,7 +506,6 @@ class Ui_MainWindow(object):
         ##### set hover text of the label
         self.label_clustering.setToolTip('If checked, computes a hierarchical clustering of the peptides based on their RM scores over the samples. <br> Results of the clustering are visualized in an interactive dendrogram and heatmap. This is saved in a html-file, which can be opened in any internet browser.')
 
-        
         ##### initiate check box to select if clustering should be computed or not
         self.checkBox_clustering = QCheckBox(self.centralwidget)
         ##### use style sheet created above
@@ -544,7 +525,6 @@ class Ui_MainWindow(object):
         ##### set grid position
         self.gridLayout.addWidget(self.checkBox_clustering, 12, 4, 1, 1, Qt.AlignRight)
         
-        
         ##### initiate label for cosine similarity cutoff spinbox
         self.label_cos_similarity = QLabel(self.centralwidget)
         ##### set object name
@@ -553,7 +533,6 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.label_cos_similarity, 13, 3, 1, 1)
         ##### set hover text of the label
         self.label_cos_similarity.setToolTip('Cutoff score for the cosine similarity for missing RM scores imputation for the clustering. <br>Missing values of a peptide are imputed based on the median of the RM scores of the closest peptides to that peptide. The cosine similarity is computed to find all peptides with similarity above the given cosine similarity cutoff.')
-
 
         ##### initiate spinbox to select modification cutoff
         self.doubleSpinBox_cos_similarity = QDoubleSpinBox(self.centralwidget)
@@ -575,8 +554,6 @@ class Ui_MainWindow(object):
         ##### set grid position
         self.gridLayout.addWidget(self.doubleSpinBox_cos_similarity, 13, 4, 1, 1)
         
-
-        
         ##### initiate label for checkbox for deseq2 normalization
         self.label_deseq_normalization = QLabel(self.centralwidget)
         ##### set object name
@@ -584,9 +561,8 @@ class Ui_MainWindow(object):
         ##### set grid position
         self.gridLayout.addWidget(self.label_deseq_normalization, 14, 3, 1, 1)
         ##### set hover text of the label
-        self.label_deseq_normalization.setToolTip('If selected RM scores are normalized with DESeq2 before clustering. <br>Requires a working installation of R and DESeq2!')
+        self.label_deseq_normalization.setToolTip('If selected RM scores are normalized with DESeq2 before clustering.')
 
-        
         ##### initiate check box to select if deseq2 normalization should be computed or not
         self.checkBox_deseq_normalization = QCheckBox(self.centralwidget)
         ##### use style sheet created above
@@ -633,12 +609,10 @@ class Ui_MainWindow(object):
         self.box_colormap.addItem("red-yellow-blue")
         self.box_colormap.setProperty("value", "red-white-blue")
         ##### set object name
-        self.checkBox_deseq_normalization.setObjectName("box_colormap")
-        
+        self.box_colormap.setObjectName("box_colormap")
         ##### set grid position
         self.gridLayout.addWidget(self.box_colormap, 15, 4, 1, 2)
-        
-        
+                
         ##### add spacer item between options and status bar
         spacerItem_middle2 = QSpacerItem(1, 50, QSizePolicy.Fixed, QSizePolicy.Expanding)
         ##### set grid position
@@ -659,7 +633,6 @@ class Ui_MainWindow(object):
         self.gridLayout.addWidget(self.pushButton_help, 26, 5, 1, 1)
         ##### set hover text of the label
         self.pushButton_help.setToolTip('Click to open the documentation.')
-
         
         ##### initiate status line
         self.statusBar = QtWidgets.QStatusBar()
@@ -744,7 +717,6 @@ class Ui_MainWindow(object):
         Tries to translate and set the text that will be displayed in the GUI to the labels.
         If translation is not successful, english source text below will be displayed
         """
-        
         _translate = QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "multiFLEX-LF"))
         
@@ -781,7 +753,6 @@ class Ui_MainWindow(object):
         checks if input file and output folder filed are filled and paths are valid
         and if true, makes run button clickable
         """
-        
         ##### initiate QFileDialog widget
         filedialog = QFileDialog()
 
@@ -814,7 +785,6 @@ class Ui_MainWindow(object):
         checks if input file and output folder filed are filled and paths are valid
         and if true, makes run button clickable
         """
-        
         ##### initiate QFileDialog widget
         filedialog = QFileDialog()
 
@@ -831,7 +801,6 @@ class Ui_MainWindow(object):
     
     def error_columns(self, key):
         """ Displays error message and resets progressbar and run and cancel buttons """
-        
         ##### display error message
         self.display_error_msg("Incorrect input format!\n" + "At least one of the columns \"ProteinID\", \"PeptideID\", \"Sample\", \"Group\" or \"Intensity\" could not be found in the input file.")
         ##### reset progressbar and run and cancel buttons
@@ -840,7 +809,6 @@ class Ui_MainWindow(object):
 
     def error_reference(self, name):
         """ Displays error message and resets progressbar and run and cancel buttons """
-        
         ##### display error message
         self.display_error_msg("Given reference sample identifier \"" + name + "\" not found in \"Group\" column")
         ##### reset progressbar and run and cancel buttons
@@ -849,7 +817,6 @@ class Ui_MainWindow(object):
 
     def error_file_open(self, path):
         """ Displays error message and resets progressbar and run and cancel buttons """
-        
         ##### display error message
         self.display_error_msg("Permission denied!\n" + "Please close " + path)
         ##### reset progressbar and run and cancel buttons
@@ -857,20 +824,15 @@ class Ui_MainWindow(object):
 
     def warning_plots(self, key):
         """ Displays warning message """
-        
-        ##### display error message
-        self.display_warning_msg("Can not create regression and scatter plots with multiprocessing!\nPlease use -cpu 1 to create regression and scatter plots!\nContinuing without creating the plots.")
+        self.display_warning_msg("Can not create regression and scatter plots with multiprocessing! \nPlease use 1 CPU to create regression and scatter plots! \nContinuing without creating the plots!")
 
     def warning_deseq(self, key):
         """ Displays warning message """
-        
-        ##### display error message
         self.display_warning_msg("DESeq2 Normalization did not work. Continuing without!")
 
     
     def reset_after_run_error(self):
         """ Resets progressbar and run and cancel buttons """
-        
         ##### enable start button
         self.update_run_button(True)
         ##### disable cancel button
@@ -886,7 +848,6 @@ class Ui_MainWindow(object):
         Updates the progressbar to the given integer (progress)
         and displays message when program has finished
         """
-        
         ##### while clustering set max of progress to 0 
         if progress == -1:
             self.progressBar.setMaximum(0)
@@ -908,7 +869,6 @@ class Ui_MainWindow(object):
         Updates the progressbar to the given integer (progress)
         and displays message when program has finished
         """
-        
         self.statusBar.showMessage(str(status))
 
 
@@ -919,7 +879,6 @@ class Ui_MainWindow(object):
         True: clickable
         False: unclickable
         """
-        
         self.pushButton_run.setEnabled(on_off)
 
 
@@ -930,7 +889,6 @@ class Ui_MainWindow(object):
         True: clickable
         False: unclickable
         """
-        
         self.pushButton_cancel.setEnabled(on_off)
 
 
@@ -939,7 +897,6 @@ class Ui_MainWindow(object):
         Opens dialog window with task completion message and asks user to 
         open output folder
         """
-        
         ##### enable start button
         self.update_run_button(True)
 
@@ -978,7 +935,6 @@ class Ui_MainWindow(object):
         Opens dialog window and displays error message with msg_text
         msg_text: str, error message to be displayed
         """
-        
         ##### initiate message box
         self.msg = QMessageBox()
         ##### set icon
@@ -998,7 +954,6 @@ class Ui_MainWindow(object):
         Opens dialog window and displays warning message with msg_text
         msg_text: str, warning message to be displayed 
         """
-        
         ##### initiate message box
         self.msg = QMessageBox()
         ##### set icon
@@ -1025,7 +980,7 @@ class Ui_MainWindow(object):
         self.input_dialog = QInputDialog()
         
         ##### open input dialog and get the users input upon clicking the buttons
-        self.value, self.okClicked = self.input_dialog.getDouble(None, "multiFLEX-LF Clustering Distance Cutoff","Enter a clustering distance cutoff. \n\nYou can determine a cutoff for your data from the dendrogram and heatmap. \nThe figure can be found and investigated in the file with the \nsuffix mFQ-LF_RM_scores_clustered_heatmap.html \nPlease use the positive value corresponidng to the negative distance shown in the dendrogram! \n\nThe distance will be used to build the flat clusters and assign a corresponding \nCluster ID to each peptide. \n\nThis window will open again, if you want to use another cutoff. \nPress Cancel if you do not want to apply a clustering distance cutoff.", 0, 0, 100, 2)
+        self.value, self.okClicked = self.input_dialog.getDouble(None, "multiFLEX-LF Clustering Distance Cutoff","Please enter a clustering distance cutoff: \nThe distance will be used to build the flat clusters and assign a respective Cluster ID to each peptide. \n\nPlease determine the cutoff for your data from the dendrogram and heatmap \nin your output folder in the file with the suffix '_mFQ-LF_RM_scores_clustered_heatmap.html' \n\nImportant: Please use the positive value of the negative distance shown in the dendrogram! \n\nThis window will open again so that you can enter another cutoff. \nPlease press Cancel if you do not want to apply a clustering distance cutoff.", 0, 0, 100, 2)
         
         ##### if OK clicked change the variable clust_cutoff to the input value
         ##### otherwise change it to 'q'
@@ -1206,10 +1161,11 @@ def mFQLF_GUI_main(self, ui):
             with the cluster ids of the user given distance (x)
         
     Parameters:
-        This function is imported to the multiFLEX_LF_GUI script and run within the FQLFWorkerThread class
+        This function is imported to the multiFLEX_LF_GUI script and run within the mFQLFWorkerThread class
         self: FQLFWorkerThread class object from where the function is executed
         ui: Object of class Ui_MainWindow
     """
+    
     #### get current time to track the runtime
     starttime = time()
     
@@ -1231,7 +1187,6 @@ def mFQLF_GUI_main(self, ui):
         ##### terminate process
         exit(ui.worker_thread.exec_())
         
-
     ##### check given reference identifier exists in group column
     if str(self.reference) not in set(df_input["Group"].astype(str)):
         ##### print error message
@@ -1302,7 +1257,6 @@ def mFQLF_GUI_main(self, ui):
         reg_plots_pdf = ''
         scatter_plots_pdf = ''
     
-    
     ##### create output file path for the pdf file of the RM score distribution
     path_distribution_plots = mFLF.add_filename_to_path(self.path_output, self.input_file_name, "mFQ-LF_RM_scores_distribution.pdf")
     ##### try to access the pdf file and raise permission error if not possible
@@ -1323,8 +1277,7 @@ def mFQLF_GUI_main(self, ui):
             self.send_error_file_open(path_deseq_distribution_plots)
             ##### terminate process
             exit(ui.worker_thread.exec_())
-        
-    
+
     ##### check if heatmaps should and can be created
     if self.create_heatmaps:
         path_heatmaps = mFLF.add_filename_to_path(self.path_output, self.input_file_name, "mFQ-LF_heatmaps.pdf")
@@ -1381,7 +1334,6 @@ def mFQLF_GUI_main(self, ui):
     ##### remove the header variables
     del header, removed_header
     
-    
     ##### start multiFLEX-LF/FLEXIQuant-LF computation #####
     
     ##### dataframe for the calculated RM scores for all proteins and peptides
@@ -1401,7 +1353,7 @@ def mFQLF_GUI_main(self, ui):
     if self.num_cpus < 2:
         
         ##### send status to statusbar
-        self.send_status("FLEXIQuant-LF computation...")
+        self.send_status("FLEXIQuant-LF computation of every protein...")
         
         for protein in list_proteins:
             
@@ -1417,11 +1369,10 @@ def mFQLF_GUI_main(self, ui):
             progress += progress_step
             self.send_progress(progress)
 
-
     else:
         
         ##### send status to statusbar
-        self.send_status("FLEXIQuant-LF computation with multiprocessing...")
+        self.send_status("Parallel FLEXIQuant-LF computation of every protein...")
         
         ##### run the FLEXIQuant-LF method (run_FQLF) for all proteins in parallel
         FQLF_res = [] ##### list for RM scores dataframes of multiprocessing
@@ -1460,7 +1411,6 @@ def mFQLF_GUI_main(self, ui):
         ##### get RM scores for all proteins
         for elem in FQLF_res[0]:
             df_RM_scores_all_proteins = df_RM_scores_all_proteins.append(elem)
-
 
     ##### close pdf file if plots were created
     if self.create_plots:
@@ -1506,7 +1456,7 @@ def mFQLF_GUI_main(self, ui):
         self.send_progress(0)
         
         ##### send status to statusbar
-        self.send_status("Create heatmaps for every protein...")
+        self.send_status("Creating heatmaps for every protein...")
 
         ##### create title page
         fig = plt.figure(figsize=(1, 1))
@@ -1550,7 +1500,6 @@ def mFQLF_GUI_main(self, ui):
         
         ##### send status to statusbar
         self.send_status("Finished with heatmaps for every protein!")
-
 
     ##### if chosen compute the clustering of the RM scores 
     ##### and create the html file with the interactive dendrogram and heatmap
@@ -1603,10 +1552,8 @@ def mFQLF_GUI_main(self, ui):
 
             try:
                 ##### execute the R script for DESeq2
-                script = "run_deseq2.R"
-                command = ["Rscript", script, imputed_file, groups_file]
+                command = ["Rscript", "run_deseq2.R", imputed_file, groups_file]
                 x = run(command)
-            
             
                 if x.returncode == 0:
                     
@@ -1646,7 +1593,6 @@ def mFQLF_GUI_main(self, ui):
                         ##### terminate process
                         exit(ui.worker_thread.exec_())
                     
-                    
                     ##### create plot of the distribution of RM scores for each sample per sample group
                     mFLF.create_RM_score_distribution_plots(df_RM_scores_all_proteins_reduced, deseq_distri_plots_pdf, list_groups)
                     ##### close pdf file of the distribution plots
@@ -1674,7 +1620,7 @@ def mFQLF_GUI_main(self, ui):
                 
                 ##### if DESeq2 normalization did not work, show warning
                 ##### and continue without normalized RM scores
-                self.send_warning_plots()
+                self.send_warning_deseq()
                 
                 ##### remove the deseq2 input file
                 remove(imputed_file)
@@ -1706,8 +1652,7 @@ def mFQLF_GUI_main(self, ui):
                 self.send_error_file_open(path_out)
                 ##### terminate process
                 exit(ui.worker_thread.exec_())
-                
-                
+            
         ##### begin clustering #####
         ##### cluster the peptide by their RM scores over the samples
         ##### calculate linkage matrix for all peptides in the dataframe 
@@ -1811,11 +1756,9 @@ def mFQLF_GUI_main(self, ui):
                 ##### terminate process
                 exit(ui.worker_thread.exec_())
             
-            
             ##### again ask for user chosen distance cutoff for the clusters
             distance_str = str(self.open_input_dialog())
             
-        
         ##### send status to statusbar
         self.send_status("Finished clustering!")
     
@@ -1849,4 +1792,3 @@ if __name__ == "__main__":
 
     ##### display exit code
     exit(app.exec_())
-
