@@ -9,5 +9,7 @@ In high-throughput LC-MS/MS-based proteomics information about the presence and 
 
 For a detailed description of the input file, the input parameters and the output files see: multiFLEX-LF_documentation.pdf
 
+A test data set is available here: https://gitlab.com/SteenOmicsLab/multiflex-lf/-/tree/main/scr/test_data
+
 
 
