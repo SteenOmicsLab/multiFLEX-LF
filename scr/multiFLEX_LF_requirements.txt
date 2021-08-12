@@ -1,0 +1,14 @@
+python:
+pandas
+numpy
+scipy
+scikit-learn
+matplotlib
+seaborn
+plotly
+click (for CLI)
+pyqt5 (for GUI)
+
+R:
+stringr
+deseq2
