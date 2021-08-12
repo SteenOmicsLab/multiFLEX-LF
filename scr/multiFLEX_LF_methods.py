@@ -3,7 +3,7 @@
 
 # Authors: Pauline Hiort and Konstantin Kahnert
 # Date: 2021_07_22
-# Python version: 3.8
+# Python version: 3.8.10
 
 """
 Methods of multiFLEX-LF
@@ -65,6 +65,8 @@ renderers.default = "browser"
 def add_filename_to_path(path, filename, ending):
     """
     Takes path of input file, removes file extension and adds new filename
+    Adapted from FLEXIQuant-LF (https://github.com/SteenOmicsLab/FLEXIQuantLF)
+    
     Parameters:
         path : path to input file (string)
         filename : name of new file (string)
@@ -72,8 +74,6 @@ def add_filename_to_path(path, filename, ending):
 
     Returns:
         input path_filename (string)
-        
-    Adapted from FLEXIQuant-LF
     """
     ##### match everything until '.' in the path
     filename_start = findall("^(.*?)\..*", filename)[0]
@@ -92,6 +92,7 @@ def calculate_confidence_band(slope, median_intens, df_train, X, y, alpha):
     """
     Calculates the confidence bands arround the regression line 
     for the regression plots
+    Adapted from FLEXIQuant-LF
 
     Parameters:
         slope : slope of the regression line
@@ -163,6 +164,7 @@ def create_regression_plots(ax0, ax1, df_train, sample, protein_id, r2_model,
     """
     Creates a histogram and a scatter plot with regression line and confidence bands
     of a current sample in the given figure axis ax0 and ax1
+    Adapted from FLEXIQuant-LF
 
     Parameters:
         ax0 : subfigure axis for the histogram
@@ -240,6 +242,8 @@ def create_regression_plots(ax0, ax1, df_train, sample, protein_id, r2_model,
 def calc_raw_scores(df_distance, median_intens):
     """
     Calculates the raw scores
+    Adapted from FLEXIQuant-LF
+    
     Parameters:
          df_distance : pandas dataframe containing the vertical distances to the regression line
                         rows: samples, columns: peptides
@@ -276,7 +280,8 @@ def normalize_t3median(df):
     """
     Applies Top3 median normalization to df
     Determines the median of the three highest values in each row and divides every value in the row by it
-
+    Adapted from FLEXIQuant-LF
+    
     Parameter:
         df : pandas dataframe of datatype float or integer
 
