@@ -3,7 +3,7 @@
 
 # Authors: Pauline Hiort and Konstantin Kahnert
 # Date: 2021_07_22
-# Python version: 3.8
+# Python version: 3.8.10
 
 """
 multiFLEX-LF CLI version
@@ -149,14 +149,14 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
     '--input_file',
     type=click.Path(exists=True),
     required=True,
-    help='Path of the comma separated input file (.csv)'
+    help='Path of the comma separated input file (.csv).'
 )
 @click.option(
     '-o',
     '--output_folder',
     type=click.Path(exists=True),
     required=True,
-    help='Path to the folder into which the output files should be saved'
+    help='Path to the folder into which the output files should be saved.'
 )
 @click.option(
     '-r',
@@ -243,7 +243,7 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
     help='Colormap used for the heatmap(s). Please choose one of 1-7. Value description: \b\n\n'
          '1 = "red-white-blue" colormap \b\n 2 = "pink-white-green" \b\n 3 = "purple-white-green"'
          '\b\n 4 = "brown-white-bluegreen" \b\n 5 = "orange-white-purple" \b\n 6 = "red-white-grey"'
-         '\b\n 7 = "red-yellow-green" \b\n 8 = "red-yellow-blue; \b\n See: https://matplotlib.org/stable/tutorials/colors/colormaps.html"'
+         '\b\n 7 = "red-yellow-green" \b\n 8 = "red-yellow-blue"'
 )
 
 
@@ -258,12 +258,11 @@ def mFQLF_CLI_main(input_file, output_folder, reference, num_init, mod_cutoff, r
     python multiFLEX_LF_CLI.py -i path/to/input_file.csv -o path/to/output_folder/ -r "Control" -n 30 -mc 0.5 -p -hmap -cpu 1 -c -cos 0.98 -dn -cm 1
 
     """
-    
     #### get current system time to track the runtime
     starttime = time()
     
     ##### print status
-    print("Starting multiFLEX-LF/FLEXIQuant-LF analysis...")
+    print("Starting multiFLEX-LF analysis...")
         
     ##### get input file name
     input_file_name = findall("[^\\\\,/]*$", input_file)[0]
@@ -328,7 +327,6 @@ def mFQLF_CLI_main(input_file, output_folder, reference, num_init, mod_cutoff, r
         reg_plots_pdf.savefig(figure=fig, bbox_inches="tight", dpi=300)
         plt.close()
         
-        
         ##### create output file path for the pdf file of the intensities vs. RM scores scatter plot
         path_scatter_plots = mFLF.add_filename_to_path(output_folder, input_file_name, "mFQ-LF_scatter_plots.pdf")
         ##### try to access the pdf file and raise permission error if not possible
@@ -357,7 +355,6 @@ def mFQLF_CLI_main(input_file, output_folder, reference, num_init, mod_cutoff, r
         create_plots = False
         reg_plots_pdf = ''
         scatter_plots_pdf = ''
-    
     
     ##### create output file path for the pdf file of the RM score distribution
     path_distribution_plots = mFLF.add_filename_to_path(output_folder, input_file_name, "mFQ-LF_RM_scores_distribution.pdf")
@@ -428,7 +425,7 @@ def mFQLF_CLI_main(input_file, output_folder, reference, num_init, mod_cutoff, r
     list_proteins = df_intens_matrix_all_proteins.columns.get_level_values("ProteinID").unique().sort_values()      
     
     ##### print status
-    print("Data was imported sucessfully")
+    print("Data was imported sucessfully!")
     print("Analyzing", len(list_proteins), "proteins...")    
     
     ##### if number of cpus smaller than 2 continue without parallel processing
@@ -436,7 +433,7 @@ def mFQLF_CLI_main(input_file, output_folder, reference, num_init, mod_cutoff, r
     if num_cpus < 2:
         
         ##### print status
-        print("FLEXIQuant-LF computation...")
+        print("FLEXIQuant-LF computation for every protein...")
         
         for protein in list_proteins:
   
@@ -451,7 +448,7 @@ def mFQLF_CLI_main(input_file, output_folder, reference, num_init, mod_cutoff, r
     else:
         
         ##### print status
-        print("FLEXIQuant-LF computation with multiprocessing...")
+        print("Parallel FLEXIQuant-LF computation for every protein...")
         
         ##### list of the RM scores of run_FQLF() while multiproccessing
         FQLF_res = []
@@ -559,8 +556,7 @@ def mFQLF_CLI_main(input_file, output_folder, reference, num_init, mod_cutoff, r
         
         ##### close pdf file of the heatmaps
         heatmaps_pdf.close()
-        
-        
+    
     ##### if chosen compute the clustering of the RM scores 
     ##### and create the html file with the interactive dendrogram and heatmap
     if clustering:
@@ -608,8 +604,7 @@ def mFQLF_CLI_main(input_file, output_folder, reference, num_init, mod_cutoff, r
 
             try:
                 ##### execute the R script for DESeq2
-                script = "run_deseq2.R"
-                cmd = ["Rscript", script, imputed_file, groups_file]
+                cmd = ["Rscript", "run_deseq2.R", imputed_file, groups_file]
                 x = run(cmd)
                 
                 if x.returncode == 0:
@@ -655,7 +650,7 @@ def mFQLF_CLI_main(input_file, output_folder, reference, num_init, mod_cutoff, r
                 else:
                     
                     ##### if DESeq2 normalization did not work, print warning
-                    print("WARNING: DESeq2 Normalization did not work. Continuing without.")
+                    print("WARNING: DESeq2 Normalization did not work. Continuing without!")
                     print()
                     
                     ##### remove the deseq2 input file
@@ -669,7 +664,7 @@ def mFQLF_CLI_main(input_file, output_folder, reference, num_init, mod_cutoff, r
                 
                 ##### if DESeq2 normalization did not work, print warning 
                 ##### and continue without normalized RM scores
-                print("WARNING: DESeq2 Normalization did not work. Continuing without.")
+                print("WARNING: DESeq2 Normalization did not work. Continuing without!")
                 print()
                 
                 ##### remove the DESeq2 input file
@@ -680,7 +675,6 @@ def mFQLF_CLI_main(input_file, output_folder, reference, num_init, mod_cutoff, r
                 output_df_file = mFLF.add_filename_to_path(output_folder, input_file_name, "mFQ-LF_RM_scores_clustered.csv")
                 
         else:
-            
             ##### output files for the heatmap and csv file of the clustering
             clust_heatmap = mFLF.add_filename_to_path(output_folder, input_file_name, "mFQ-LF_RM_scores_clustered_heatmap.html")
             output_df_file = mFLF.add_filename_to_path(output_folder, input_file_name, "mFQ-LF_RM_scores_clustered.csv")
@@ -755,8 +749,10 @@ def mFQLF_CLI_main(input_file, output_folder, reference, num_init, mod_cutoff, r
         colors_list = ['rgb'+str(elem) for elem in color_palette("Set2", 8)]
         
         ##### ask for user chosen distance cutoff for the clusters
-        print("Type a clustering distance cutoff for building of the clusters and hit enter. \nIf not type q and hit enter.")
-        distance_str = input("Type the number (with decimal point) here: ")
+        print('\n\n')
+        print("Please enter a clustering distance cutoff: The distance will be used to build the flat clusters and assign a respective Cluster ID to each peptide. \n\nPlease determine the cutoff for your data from the dendrogram and heatmap in your output folder in the file with the suffix '_mFQ-LF_RM_scores_clustered_heatmap.html' \n\nThis input prompt will open again so that you can enter another cutoff. Please type q if you do not want to apply a clustering distance cutoff.")
+        print("Please type a clustering distance cutoff and hit enter. \nIf not please type q and hit enter.")
+        distance_str = input("Please type the number (with decimal point) here: ")
         
         ##### repeat show input prompt until q is entered
         while distance_str != 'q':
@@ -764,7 +760,6 @@ def mFQLF_CLI_main(input_file, output_folder, reference, num_init, mod_cutoff, r
             ##### if q is given finish multiFLEX-LF computation
             if distance_str == "q":
                 ##### print status and exit
-                print("Finished clustering!")
                 print("Finished with multiFLEX-LF analysis in {:.3f} minutes".format((endtime-starttime)/60))
                 exit()            
             
@@ -800,20 +795,18 @@ def mFQLF_CLI_main(input_file, output_folder, reference, num_init, mod_cutoff, r
                     exit()
                     
             except:
-                print('Not a valid number! Please try again. For exiting type q and hit enter.')
+                print('Not a valid number! Please try again. To exit please type q and hit enter.')
             
             ##### ask for user chosen distance cutoff for the clusters
-            print("Type a clustering distance cutoff for building of the clusters and hit enter. \nIf not type q and hit enter.")
-            distance_str = input("Type the number (with decimal point) here: ")
-        
-        ##### print status
-        print("Finished clustering!")
-            
-
+            distance_str = input("Please type another clustering distance cutoff number (with decimal point) or q here: ")
+                  
     ##### print status
     print("Finished with multiFLEX-LF analysis in {:.3f} minutes".format((endtime-starttime)/60))
 
 
 if __name__ == "__main__":
+
+    freeze_support() ##### support of multiprocessing for executable creation
+
     ##### run main
     mFQLF_CLI_main()
