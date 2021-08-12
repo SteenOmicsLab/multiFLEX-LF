@@ -364,6 +364,16 @@ def mFQLF_CLI_main(input_file, output_folder, reference, num_init, mod_cutoff, r
         ##### print error message and terminate the process
         print("ERROR: Permission denied!\n" + "Please close " + path_distribution_plots)
         exit()
+        
+    if deseq2_normalization:
+        ##### create output file path for the pdf file of the RM score distribution after DESeq2 normalization
+        path_deseq_distribution_plots = mFLF.add_filename_to_path(output_folder, input_file_name, "mFQ-LF_RM_scores_DESeq_distribution.pdf")
+        ##### try to access the pdf file and raise permission error if not possible
+        try: deseq_distri_plots_pdf = PdfPages(path_deseq_distribution_plots)
+        except PermissionError:
+            ##### print error message and terminate the process
+            print("ERROR: Permission denied!\n" + "Please close " + path_deseq_distribution_plots)
+            exit()
     
     ##### check if heatmaps should and can be created
     if create_heatmaps:
@@ -642,6 +652,12 @@ def mFQLF_CLI_main(input_file, output_folder, reference, num_init, mod_cutoff, r
                         ##### print error message and terminate the process
                         print("ERROR: Permission denied!\n" + "Please close " + imputed_file)
                         exit()
+                        
+                    ##### create plot of the distribution of RM scores for each sample per sample group
+                    mFLF.create_RM_score_distribution_plots(df_RM_scores_all_proteins_reduced, deseq_distri_plots_pdf, list_groups)
+                    ##### close pdf file of the distribution plots
+                    try: deseq_distri_plots_pdf.close()
+                    except: pass
                     
                     ##### output files for the heatmap and csv file of the clustering
                     clust_heatmap = mFLF.add_filename_to_path(output_folder, input_file_name, "mFQ-LF_RM_scores_DESeq_clustered_heatmap.html")
