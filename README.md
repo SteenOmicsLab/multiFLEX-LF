@@ -7,7 +7,8 @@ In high-throughput LC-MS/MS-based proteomics information about the presence and 
 Windows 10 and 800MB of free disk space.
 
 ### Download GUI
-multiFLEX-LF GUI executable for Windows 10 systems as well as the Python source code can be downloaded here: https://gitlab.com/SteenOmicsLab/multiflex-lf
+multiFLEX-LF GUI executable for Windows 10 systems downloaded here: https://github.com/SteenOmicsLab/multiFLEX-LF/releases
+The Python source code can be downloaded here: https://gitlab.com/SteenOmicsLab/multiflex-lf
 
 ## Installation
 No installation needed. Just move the zip file to your location of choice and extract it. To start the program, double-click multiFLEX_LF_GUI.exe. The program might take a while to start.
