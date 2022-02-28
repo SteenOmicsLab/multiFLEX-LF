@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # Authors: Pauline Hiort and Konstantin Kahnert
-# Date: 2021_07_22
+# Date: 2022_02_25
 # Python version: 3.8.10
 
 """
@@ -233,7 +233,7 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
     '--deseq2_normalization',
     is_flag=True,
     help='If selected RM scores are normalized with DESeq2 before clustering. '
-         'Requires a working installation of R and DESeq2! '
+         'Is only computed in combination with clustering! Requires a working installation of R and DESeq2! '
 )
 @click.option(
     '-cm',
@@ -245,12 +245,18 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
          '\b\n 4 = "brown-white-bluegreen" \b\n 5 = "orange-white-purple" \b\n 6 = "red-white-grey"'
          '\b\n 7 = "red-yellow-green" \b\n 8 = "red-yellow-blue"'
 )
+@click.option(
+    '-cq',
+    '--clustering_quit',
+    is_flag=True,
+    help='If selected flat cluster creation with use input of a clustering distance is skipped.'
+)
 
 
 
 def mFQLF_CLI_main(input_file, output_folder, reference, num_init, mod_cutoff, remove_outliers, 
                   create_plots, create_heatmaps, clustering, cosine_similarity, deseq2_normalization,
-                  num_cpus, colormap):
+                  clustering_quit, num_cpus, colormap):
     """
     multiFLEX-LF CLI
 
@@ -302,7 +308,13 @@ def mFQLF_CLI_main(input_file, output_folder, reference, num_init, mod_cutoff, r
 
     ##### create the intensities matrix
     ##### ProteinID and PeptidesID as column indices; Group and Sample as row indices
-    df_intens_matrix_all_proteins = df_input.set_index(["ProteinID", "PeptideID", "Group", "Sample"]).unstack(level=["Group", "Sample"]).T
+    df_intens_matrix_all_proteins = df_input[["ProteinID", "PeptideID", "Group", "Sample", "Intensity"]]
+    
+    ##### print warning if duplicate entries of ["ProteinID", "PeptideID", "Group", "Sample"] are in data
+    if df_intens_matrix_all_proteins[["ProteinID", "PeptideID", "Group", "Sample"]].duplicated().sum() > 0:
+        print('WARNING: Duplicate ["ProteinID", "PeptideID", "Group", "Sample"] entries found! Keeping only highest intensity of duplicate entries!')
+     
+    df_intens_matrix_all_proteins = df_intens_matrix_all_proteins.dropna(subset=["Intensity"]).groupby(["ProteinID", "PeptideID", "Group", "Sample"])["Intensity"].apply(max).unstack(level=["Group", "Sample"]).T
     df_intens_matrix_all_proteins = df_intens_matrix_all_proteins.set_index([df_intens_matrix_all_proteins.index.get_level_values("Group"), df_intens_matrix_all_proteins.index.get_level_values("Sample")])
     df_intens_matrix_all_proteins = df_intens_matrix_all_proteins.sort_index(axis=0).sort_index(axis=1)
         
@@ -446,7 +458,7 @@ def mFQLF_CLI_main(input_file, output_folder, reference, num_init, mod_cutoff, r
         print("FLEXIQuant-LF computation for every protein...")
         
         for protein in list_proteins:
-  
+            
             ##### run the FLEXIQuant-LF method (run_FQLF) with the current protein
             df_RM_scores = mFLF.run_FQLF(df_intens_matrix_all_proteins[protein].copy(), protein, str(reference), 
                                     num_init, mod_cutoff, remove_outliers, input_file_name, output_folder, 
@@ -490,6 +502,12 @@ def mFQLF_CLI_main(input_file, output_folder, reference, num_init, mod_cutoff, r
     
     ##### print status
     print("Finished FLEXIQuant-LF analysis in {:.3f} minutes".format((time()-starttime)/60))
+    
+    ##### check if RM scores dataframe is empty and return error
+    if df_RM_scores_all_proteins.empty:
+        ##### print message and exit
+        print("ERROR: RM scores were not computed! Intensities of at least 5 peptides per protein have to be given!")
+        exit()
     
     ##### list of all groups for creation the distribution plots and protein-wise heatmaps
     list_groups = list(set(df_RM_scores_all_proteins.columns.get_level_values("Group")))
@@ -584,6 +602,27 @@ def mFQLF_CLI_main(input_file, output_folder, reference, num_init, mod_cutoff, r
         df_RM_scores_all_proteins_reduced, df_RM_scores_all_proteins_imputed, removed = mFLF.missing_value_imputation(df_RM_scores_all_proteins_reduced, round(1-cosine_similarity, 3))
         removed_peptides = removed_peptides.append(removed)
         removed = DataFrame()
+        
+        ##### check if RM scores dataframe is empty, if true return error and finish analysis
+        if df_RM_scores_all_proteins_imputed.empty:
+            ##### print message and exit
+            print("ERROR: Imputation of RM scores for clustering was unsuccessful! Too many missing values in the data!")
+            
+            ##### add removed peptides to csv file
+            if len(removed_peptides) > 0:
+                removed_peptides.columns = ["ProteinID", "PeptideID"]
+                removed_peptides = removed_peptides.set_index(["ProteinID"])
+                
+                ##### save removed peptides, raise permission error if file can not be accessed
+                path_out = mFLF.add_filename_to_path(output_folder, input_file_name, "mFQ-LF-output_removed_peptides.csv")
+                try: removed_peptides.to_csv(path_out, sep=',', mode='a', index=True, header=False)
+                except PermissionError:
+                    ##### print error message and terminate the process
+                    print("ERROR: Permission denied!\n" + "Please close " + path_out)
+                    exit()
+            
+            print("Finished with multiFLEX-LF analysis in {:.3f} minutes".format((time()-starttime)/60))
+            exit()
         
         ##### if chosen apply DESeq2 normalization to the RM scores
         if deseq2_normalization:
@@ -695,8 +734,7 @@ def mFQLF_CLI_main(input_file, output_folder, reference, num_init, mod_cutoff, r
             clust_heatmap = mFLF.add_filename_to_path(output_folder, input_file_name, "mFQ-LF_RM_scores_clustered_heatmap.html")
             output_df_file = mFLF.add_filename_to_path(output_folder, input_file_name, "mFQ-LF_RM_scores_clustered.csv")
         
-        ##### add removed peptide to csv file
-        #print(len(removed_peptides), "peptides removed during imputation")
+        ##### add removed peptides to csv file
         if len(removed_peptides) > 0:
             removed_peptides.columns = ["ProteinID", "PeptideID"]
             removed_peptides = removed_peptides.set_index(["ProteinID"])
@@ -730,7 +768,7 @@ def mFQLF_CLI_main(input_file, output_folder, reference, num_init, mod_cutoff, r
                          }
         
         ##### open the plotly figure in the system's default internet browser
-        fig.show(config=plotly_config)
+        #fig.show(config=plotly_config)
         
         ##### write plotly figure to the html file
         try: fig.write_html(file=clust_heatmap, include_plotlyjs=True, full_html=True, config=plotly_config)
@@ -761,61 +799,71 @@ def mFQLF_CLI_main(input_file, output_folder, reference, num_init, mod_cutoff, r
         ##### redo plotly figure with a colored dendrogram by the defined distance threshold
         ##### save plotly figure in html and create new output with cluster ids
         
-        ##### list of colors for the dendrogram
-        colors_list = ['rgb'+str(elem) for elem in color_palette("Set2", 8)]
         
-        ##### ask for user chosen distance cutoff for the clusters
-        print('\n\n')
-        print("Please enter a clustering distance cutoff: The distance will be used to build the flat clusters and assign a respective Cluster ID to each peptide. \n\nPlease determine the cutoff for your data from the dendrogram and heatmap in your output folder in the file with the suffix '_mFQ-LF_RM_scores_clustered_heatmap.html' \n\nThis input prompt will open again so that you can enter another cutoff. Please type q if you do not want to apply a clustering distance cutoff.")
-        print("Please type a clustering distance cutoff and hit enter. \nIf not please type q and hit enter.")
-        distance_str = input("Please type the number (with decimal point) here: ")
-        
-        ##### repeat show input prompt until q is entered
-        while distance_str != 'q':
-            
-            ##### if q is given finish multiFLEX-LF computation
-            if distance_str == "q":
-                ##### print status and exit
-                print("Finished with multiFLEX-LF analysis in {:.3f} minutes".format((endtime-starttime)/60))
-                exit()            
-            
-            ##### test if input can be converted to float
-            try:
-                ##### get absolute float value of the distance
-                distance_int = abs(float(distance_str))
-                
-                ##### create the flat clusters based on the given distance cutoff 
-                ##### and create an array of the cluster ids
-                ##### has to be flipped because the dendrogram and heatmap is flipped
-                array_cluster_ids = flip(fcluster(linkage_matrix, t=distance_int, criterion="distance")[ordered_peptides])
-                
-                ###### create plotly figure with the distance threshold
-                fig, array_RM_scores_all_proteins_reduced, ordered_peptides = mFLF.peptide_clustering(df_RM_scores_all_proteins_reduced, linkage_matrix, mod_cutoff, color_map, colors_list, distance_int, array_cluster_ids)
-                ##### open the plotly figure in the system's default internet browser
-                fig.show(config=plotly_config)
-                
-                ##### write plotly figure to the html file
-                try: fig.write_html(file=clust_heatmap[:-5]+"_dist-"+str(distance_int)+".html", include_plotlyjs=True, full_html=True, config=plotly_config)
-                except PermissionError:
-                    ##### print error message and terminate
-                    print("ERROR: Permission denied!\n" + "Please close " + clust_heatmap[:-5]+"_dist-"+str(distance_int)+".html")
-                    exit()
-                
-                ###### add cluster ids to the output table and print the dataframe to a new file
-                output_df["Cluster"] = array_cluster_ids
-                
-                try: output_df.to_csv(output_df_file[:-4]+"_dist-"+str(distance_int)+".csv", sep=',', mode='w', index=True, header=True, float_format="%.5f")
-                except PermissionError:
-                    ##### print error message and terminate
-                    print("ERROR: Permission denied!\n" + "Please close " + output_df_file[:-4]+"_dist-"+str(distance_int)+".csv")
-                    exit()
-                    
-            except:
-                print('Not a valid number! Please try again. To exit please type q and hit enter.')
+        if not clustering_quit:
+            ##### list of colors for the dendrogram
+            colors_list = ['rgb'+str(elem) for elem in color_palette("Set2", 8)]
             
             ##### ask for user chosen distance cutoff for the clusters
-            distance_str = input("Please type another clustering distance cutoff number (with decimal point) or q here: ")
-                  
+            print('\n\n')
+            print("Please enter a clustering distance cutoff: The distance will be used to build flat clusters and assign a respective Cluster ID to each peptide. \n\nPlease determine a suitable cutoff for your data in the dendrogram and heatmap \n(saved in a file in your output folder with suffix '_mFQ-LF_RM_scores_clustered_heatmap.html'). \n\nThis input prompt will open again so that you can enter another cutoff. Please type q if you do not want to apply a clustering distance cutoff.")
+            print("Please type a clustering distance cutoff and hit enter, otherwise please type q and hit enter.")
+            distance_str = input("Please enter your number (with decimal point) here: ")
+            
+
+            
+            ##### repeat show input prompt until q is entered
+            while distance_str != 'q':
+                
+                ##### if q is given finish multiFLEX-LF computation
+                if distance_str == "q":
+                    ##### print status and exit
+                    print("Finished with multiFLEX-LF analysis in {:.3f} minutes".format((endtime-starttime)/60))
+                    exit()            
+                
+                ##### test if input can be converted to float
+                try:
+                    ##### get absolute float value of the distance
+                    distance_int = abs(float(distance_str))
+                    
+                    ##### create the flat clusters based on the given distance cutoff 
+                    ##### and create an array of the cluster ids
+                    ##### has to be flipped because the dendrogram and heatmap is flipped
+                    array_cluster_ids = flip(fcluster(linkage_matrix, t=distance_int, criterion="distance")[ordered_peptides])
+                    
+                    ###### create plotly figure with the distance threshold
+                    fig, array_RM_scores_all_proteins_reduced, ordered_peptides = mFLF.peptide_clustering(df_RM_scores_all_proteins_reduced, linkage_matrix, mod_cutoff, color_map, colors_list, distance_int, array_cluster_ids)
+                    ##### open the plotly figure in the system's default internet browser
+                    fig.show(config=plotly_config)
+                    
+                    ##### write plotly figure to the html file
+                    try: fig.write_html(file=clust_heatmap[:-5]+"_dist-"+str(distance_int)+".html", include_plotlyjs=True, full_html=True, config=plotly_config)
+                    except PermissionError:
+                        ##### print error message and terminate
+                        print("ERROR: Permission denied!\n" + "Please close " + clust_heatmap[:-5]+"_dist-"+str(distance_int)+".html")
+                        exit()
+                    
+                    ###### add cluster ids to the output table and print the dataframe to a new file
+                    output_df["Cluster"] = array_cluster_ids
+                    
+                    try: output_df.to_csv(output_df_file[:-4]+"_dist-"+str(distance_int)+".csv", sep=',', mode='w', index=True, header=True, float_format="%.5f")
+                    except PermissionError:
+                        ##### print error message and terminate
+                        print("ERROR: Permission denied!\n" + "Please close " + output_df_file[:-4]+"_dist-"+str(distance_int)+".csv")
+                        exit()
+                        
+                except:
+                    print('Not a valid number! Please try again. To exit please type q and hit enter.')
+                
+                ##### ask for user chosen distance cutoff for the clusters
+                distance_str = input("Please enter another clustering distance cutoff number (with decimal point) or q here: ")
+                    
+        else:
+            ##### if chosen skip flat cluster creation
+            pass
+    else:
+        endtime = time()
+              
     ##### print status
     print("Finished with multiFLEX-LF analysis in {:.3f} minutes".format((endtime-starttime)/60))
 
