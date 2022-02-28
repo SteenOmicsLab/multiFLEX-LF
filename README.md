@@ -20,7 +20,7 @@ multiFLEX-LF requires a comma separated file (.csv) containing unique protein an
 
 A test dataset is available here: https://gitlab.com/SteenOmicsLab/multiflex-lf/-/tree/main/scr/test_data
 
-**Warning**: If entries with same ProteinID, PeptideID, Sample and Group but different intensities are given, the maximum intensity will be used by multiFLEX-LF for that peptide.
+**Warning**: If entries with the same ProteinID, PeptideID, Sample and Group but different intensities are given, the maximum intensity will be used by multiFLEX-LF for that peptide.
 
 ### Output
 multiFLEX-LF creates the following output files:\
