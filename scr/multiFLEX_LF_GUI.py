@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # Authors: Pauline Hiort and Konstantin Kahnert
-# Date: 2021_07_22
+# Date: 2022_02_25
 # Python version: 3.8
 
 """
@@ -86,6 +86,9 @@ class mFQLFWorkerThread(QThread):
     sig_error_reference = pyqtSignal(str)
     sig_error_file_open = pyqtSignal(str)
     sig_error_columns = pyqtSignal(str)
+    sig_error_empty_df = pyqtSignal(str)
+    sig_error_empty_imputed_df = pyqtSignal(str)
+    sig_warning_duplicates = pyqtSignal(str)
     sig_warning_plots = pyqtSignal(str)
     sig_warning_deseq = pyqtSignal(str)
     sig_input_dialog = pyqtSignal()
@@ -131,9 +134,21 @@ class mFQLFWorkerThread(QThread):
         self.sig_error_file_open.emit(path)
 
     def send_error_columns(self):
-        """Sends group column signal from worker thread to main thread"""
+        """Sends missing group column error signal from worker thread to main thread"""
         self.sig_error_columns.emit("")
+        
+    def send_error_empty_df(self):
+        """Sends empty RM score dataframe signal from worker thread to main thread"""
+        self.sig_error_empty_df.emit("")
+        
+    def send_error_empty_imputed_df(self):
+        """Sends empty RM score dataframe signal from worker thread to main thread"""
+        self.sig_error_empty_imputed_df.emit("")
     
+    def send_warning_duplicates(self):
+        """Sends duplicates warning signal from worker thread to main thread"""
+        self.sig_warning_duplicates.emit("")
+        
     def send_warning_plots(self):
         """Sends plots warning signal from worker thread to main thread"""
         self.sig_warning_plots.emit("")
@@ -561,7 +576,7 @@ class Ui_MainWindow(object):
         ##### set grid position
         self.gridLayout.addWidget(self.label_deseq_normalization, 14, 3, 1, 1)
         ##### set hover text of the label
-        self.label_deseq_normalization.setToolTip('If selected RM scores are normalized with DESeq2 before clustering.')
+        self.label_deseq_normalization.setToolTip('If selected RM scores are normalized with DESeq2 before clustering. <br>Is only computed in combination with clustering!')
 
         ##### initiate check box to select if deseq2 normalization should be computed or not
         self.checkBox_deseq_normalization = QCheckBox(self.centralwidget)
@@ -821,6 +836,27 @@ class Ui_MainWindow(object):
         self.display_error_msg("Permission denied!\n" + "Please close " + path)
         ##### reset progressbar and run and cancel buttons
         self.reset_after_run_error()
+    
+    
+    def error_empty_df(self, key):
+        """ Displays error message and resets progressbar and run and cancel buttons """
+        ##### display error message
+        self.display_error_msg("RM scores were not computed! Intensities of at least 5 peptides per protein have to be given!")
+        ##### reset progressbar and run and cancel buttons
+        self.reset_after_run_error()
+
+
+    def error_empty_imputed_df(self, key):
+        """ Displays error message and resets progressbar and run and cancel buttons """
+        ##### display error message
+        self.display_error_msg("Imputation of RM scores for clustering was unsuccessful! Too many missing values in the data!")
+        ##### reset progressbar and run and cancel buttons
+        self.reset_after_run_error()
+        
+        
+    def warning_duplicates(self, key):
+        """ Displays warning message """
+        self.display_warning_msg('Duplicate ["ProteinID", "PeptideID", "Group", "Sample"] entries found!\n Keeping only highest intensity of duplicate entries!')
 
     def warning_plots(self, key):
         """ Displays warning message """
@@ -980,7 +1016,7 @@ class Ui_MainWindow(object):
         self.input_dialog = QInputDialog()
         
         ##### open input dialog and get the users input upon clicking the buttons
-        self.value, self.okClicked = self.input_dialog.getDouble(None, "multiFLEX-LF Clustering Distance Cutoff","Please enter a clustering distance cutoff: \nThe distance will be used to build the flat clusters and assign a respective Cluster ID to each peptide. \n\nPlease determine the cutoff for your data from the dendrogram and heatmap \nin your output folder in the file with the suffix '_mFQ-LF_RM_scores_clustered_heatmap.html' \n\nImportant: Please use the positive value of the negative distance shown in the dendrogram! \n\nThis window will open again so that you can enter another cutoff. \nPlease press Cancel if you do not want to apply a clustering distance cutoff.", 0, 0, 100, 2)
+        self.value, self.okClicked = self.input_dialog.getDouble(None, "multiFLEX-LF Clustering Distance Cutoff","Please enter a clustering distance cutoff: \nThe distance will be used to build flat clusters and assign a respective Cluster ID to each peptide. \n\nPlease determine a suitable cutoff for your data in the dendrogram and heatmap \n(saved in a file in your output folder with suffix '_mFQ-LF_RM_scores_clustered_heatmap.html'). \n\nImportant: Please use the positive value of the negative distance shown in the dendrogram! \n\nThis window will open again so that you can enter another cutoff. \nPlease press Cancel if you do not want to apply a clustering distance cutoff.", 0, 0, 100, 2)
         
         ##### if OK clicked change the variable clust_cutoff to the input value
         ##### otherwise change it to 'q'
@@ -1080,6 +1116,9 @@ class Ui_MainWindow(object):
             self.worker_thread.sig_error_reference.connect(self.error_reference)
             self.worker_thread.sig_error_file_open.connect(self.error_file_open)
             self.worker_thread.sig_error_columns.connect(self.error_columns)
+            self.worker_thread.sig_error_empty_df.connect(self.error_empty_df)
+            self.worker_thread.sig_error_empty_imputed_df.connect(self.error_empty_imputed_df)
+            self.worker_thread.sig_warning_duplicates.connect(self.warning_duplicates)
             self.worker_thread.sig_warning_plots.connect(self.warning_plots)
             self.worker_thread.sig_warning_deseq.connect(self.warning_deseq)
             self.worker_thread.sig_progress.connect(self.update_progress)
@@ -1198,7 +1237,14 @@ def mFQLF_GUI_main(self, ui):
         
     ##### create intensity matrix from imput table
     ##### ProteinID and PeptidesID as column indices; Group and Sample as row indices
-    df_intens_matrix_all_proteins = df_input.set_index(["ProteinID", "PeptideID", "Group", "Sample"]).unstack(level=["Group", "Sample"]).T
+    df_intens_matrix_all_proteins = df_input[["ProteinID", "PeptideID", "Group", "Sample", "Intensity"]]
+    
+    ##### print warning if duplicate entries of ["ProteinID", "PeptideID", "Group", "Sample"] are in data
+    if df_intens_matrix_all_proteins[["ProteinID", "PeptideID", "Group", "Sample"]].duplicated().sum() > 0:
+        self.send_warning_duplicates()
+
+    #df_intens_matrix_all_proteins = df_intens_matrix_all_proteins.set_index(["ProteinID", "PeptideID", "Group", "Sample"]).unstack(level=["Group", "Sample"]).T
+    df_intens_matrix_all_proteins = df_intens_matrix_all_proteins.dropna(subset=["Intensity"]).groupby(["ProteinID", "PeptideID", "Group", "Sample"])["Intensity"].apply(max).unstack(level=["Group", "Sample"]).T
     df_intens_matrix_all_proteins = df_intens_matrix_all_proteins.set_index([df_intens_matrix_all_proteins.index.get_level_values("Group"), df_intens_matrix_all_proteins.index.get_level_values("Sample")])
     df_intens_matrix_all_proteins = df_intens_matrix_all_proteins.sort_index(axis=0).sort_index(axis=1)
     
@@ -1420,6 +1466,13 @@ def mFQLF_GUI_main(self, ui):
     ##### send status to statusbar
     self.send_status("Finished FLEXIQuant-LF analysis in {:.3f} minutes".format((time()-starttime)/60))
     
+    ##### check if RM scores dataframe is empty and return error
+    if df_RM_scores_all_proteins.empty:
+        ##### print error message
+        self.send_error_empty_df()
+        ##### terminate process
+        exit(ui.worker_thread.exec_())
+    
     ##### list of all groups for creation the distribution plots and protein-wise heatmaps
     list_groups = list(set(df_RM_scores_all_proteins.columns.get_level_values("Group")))
     list_groups.sort()
@@ -1521,6 +1574,31 @@ def mFQLF_GUI_main(self, ui):
         df_RM_scores_all_proteins_reduced, df_RM_scores_all_proteins_imputed, removed = mFLF.missing_value_imputation(df_RM_scores_all_proteins_reduced, round(1-self.cosine_similarity, 3))
         removed_peptides = removed_peptides.append(removed)
         removed = DataFrame()
+        
+        ##### check if RM scores dataframe is empty, if true return error and finish analysis
+        if df_RM_scores_all_proteins_imputed.empty:
+            ##### print error message
+            self.send_error_empty_imputed_df()
+            
+            ##### add removed peptides from imputation to csv file
+            if len(removed_peptides) > 0:
+                removed_peptides.columns = ["ProteinID", "PeptideID"]
+                removed_peptides = removed_peptides.set_index(["ProteinID"])
+                
+                ##### save removed peptides in ...mFQ-LF-output_removed_peptides.csv file, raise permission error if file can not be accessed
+                path_out = mFLF.add_filename_to_path(self.path_output, self.input_file_name, "mFQ-LF-output_removed_peptides.csv")
+                try: removed_peptides.to_csv(path_out, sep=',', mode='a', index=True, header=False)
+                except PermissionError:
+                    ##### print error message
+                    self.send_error_file_open(path_out)
+                    ##### terminate process
+                    exit(ui.worker_thread.exec_())
+            
+            ##### send status to statusbar
+            self.send_status("Finished with multiFLEX-LF analysis in {:.3f} minutes".format((time()-starttime)/60))
+            self.send_progress(0)
+            ##### terminate process
+            exit(ui.worker_thread.exec_())
         
         ##### if chosen apply DESeq2 normalization to the RM scores
         if self.deseq_normalization:
@@ -1639,7 +1717,6 @@ def mFQLF_GUI_main(self, ui):
         self.send_status("Clustering of the peptides based on their RM scores...")
         
         ##### add removed peptides from imputation to csv file
-        #print(len(removed_peptides), "peptides removed during imputation")
         if len(removed_peptides) > 0:
             removed_peptides.columns = ["ProteinID", "PeptideID"]
             removed_peptides = removed_peptides.set_index(["ProteinID"])
@@ -1674,7 +1751,7 @@ def mFQLF_GUI_main(self, ui):
                          }
         
         ##### open the plotly figure in the system's default internet browser
-        fig.show(config=plotly_config)
+        #fig.show(config=plotly_config)
         
         ##### write plotly figure to the html file
         try: fig.write_html(file=clust_heatmap, include_plotlyjs=True, full_html=True, config=plotly_config)
@@ -1761,6 +1838,9 @@ def mFQLF_GUI_main(self, ui):
             
         ##### send status to statusbar
         self.send_status("Finished clustering!")
+    
+    else:
+        endtime = time()
     
     ##### send status to statusbar
     self.send_status("Finished with multiFLEX-LF analysis in {:.3f} minutes".format((endtime-starttime)/60))

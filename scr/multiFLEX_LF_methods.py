@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # Authors: Pauline Hiort and Konstantin Kahnert
-# Date: 2021_07_22
+# Date: 2022_02_25
 # Python version: 3.8.10
 
 """
@@ -694,14 +694,18 @@ def create_RM_score_distribution_plots(df_RM_scores, distri_plots_pdf_file, list
         
         ax = fig.add_subplot(fig_size,fig_size,i)
         
-        try: histplot(df_group, ax=ax, kde=True, stat="count", palette=colors_list[:df_group.shape[1]], edgecolor=None)
-        except: histplot(df_group, ax=ax, kde=False, stat="count", palette=colors_list[:df_group.shape[1]], edgecolor=None)
+        try: histplot(df_group, ax=ax, kde=True, stat="count", binwidth=0.1, palette=colors_list[:df_group.shape[1]], edgecolor=None)
+        except: histplot(df_group, ax=ax, kde=False, stat="count", binwidth=0.1, palette=colors_list[:df_group.shape[1]], edgecolor=None)
 
         plt.xticks(fontsize=12)
         plt.yticks(fontsize=12)
-        plt.xlim(0, 2)
+        plt.xlim(0, 3)
         plt.title("Group: "+group, fontsize=16)
         plt.xlabel("RM score", fontsize=12)
+        
+        ##### show sample legend if group contains 10 samples or less
+        if df_group.shape[1] > 10:
+            plt.legend([],[], frameon=False)            
     
         plt.tight_layout(h_pad=2)
         
